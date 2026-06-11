@@ -1,0 +1,58 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+  {% for j in data %}
+<div class="row">
+<div class="col-md-4 mt-4">
+<div class="card shadow-sm mb-4" style="border-radius: 10px;">
+    
+        
+            <div class="card-body">
+    <!-- Job Title & Badges -->
+  
+    <div class="d-flex justify-content-between align-items-start mb-2">
+      <h5 class="card-title fw-bold mb-0 text-primary">{{ j.title|default:"Software Engineer" }}</h5>
+      <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Full-time</span>
+    </div>
+    
+    <!-- Company Name / Location -->
+    <h6 class="card-subtitle mb-3 text-muted">
+     Company: {{j.user.company_name}}
+    </h6>
+    
+    <!-- Job Short Description -->
+    <p class="card-text text-secondary mb-4">
+      {{ j.description|default:"We are looking for a talented engineer to join our team. You will work on building scalable web applications and collaborating with cross-functional teams."|truncatewords:25 }}
+    </p>
+    
+    <!-- Action Footer -->
+    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
+      <span class="text-muted small">
+        <i class="bi bi-clock me-1"></i> 
+      </span>
+      
+      {% if request.user.user_type == "Recruiter" %}
+
+      <a class="btn btn-outline-danger" href="{% url 'deleteJob' j.id %}">Delete</a>
+      <a class="btn btn-outline-info " href="{% url 'editJob' j.id %}">Edit</a>
+      {% endif %}
+
+
+      {% if request.user.user_type == "JobSeeker" %}
+          
+        <div>
+      
+         <a href="{% url 'applyJob' j.id %}" class="btn btn-primary btn-sm px-4 fw-semibold">Apply Now</a>
+       </div>
+      {% endif %}
+    </div>
+    
+  </div>
+        </div>
+    </div>
+
+  
+</div>
+{% endfor %}
+
+{% endblock content %}
