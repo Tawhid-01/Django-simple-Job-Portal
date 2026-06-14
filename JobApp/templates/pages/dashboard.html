@@ -1,58 +1,147 @@
 {% extends "base/base.html" %}
 
 {% block content %}
-  {% for j in data %}
-<div class="row">
-<div class="col-md-4 mt-4">
-<div class="card shadow-sm mb-4" style="border-radius: 10px;">
+<!-- Modern Hero Banner Section -->
+<div class="bg-gradient bg-dark text-white rounded-4 p-4 p-md-5 my-4 shadow-sm position-relative overflow-hidden">
+    <!-- Abstract Background Accent Elements -->
+    <div class="position-absolute top-0 end-0 translate-middle bg-primary opacity-10 rounded-circle" style="width: 300px; height: 300px;"></div>
     
-        
-            <div class="card-body">
-    <!-- Job Title & Badges -->
-  
-    <div class="d-flex justify-content-between align-items-start mb-2">
-      <h5 class="card-title fw-bold mb-0 text-primary">{{ j.title|default:"Software Engineer" }}</h5>
-      <span class="badge bg-success-subtle text-success border border-success-subtle px-2 py-1">Full-time</span>
-    </div>
-    
-    <!-- Company Name / Location -->
-    <h6 class="card-subtitle mb-3 text-muted">
-     Company: {{j.user.company_name}}
-    </h6>
-    
-    <!-- Job Short Description -->
-    <p class="card-text text-secondary mb-4">
-      {{ j.description|default:"We are looking for a talented engineer to join our team. You will work on building scalable web applications and collaborating with cross-functional teams."|truncatewords:25 }}
-    </p>
-    
-    <!-- Action Footer -->
-    <div class="d-flex justify-content-between align-items-center pt-3 border-top">
-      <span class="text-muted small">
-        <i class="bi bi-clock me-1"></i> 
-      </span>
-      
-      {% if request.user.user_type == "Recruiter" %}
-
-      <a class="btn btn-outline-danger" href="{% url 'deleteJob' j.id %}">Delete</a>
-      <a class="btn btn-outline-info " href="{% url 'editJob' j.id %}">Edit</a>
-      {% endif %}
-
-
-      {% if request.user.user_type == "JobSeeker" %}
-          
-        <div>
-      
-         <a href="{% url 'applyJob' j.id %}" class="btn btn-primary btn-sm px-4 fw-semibold">Apply Now</a>
-       </div>
-      {% endif %}
-    </div>
-    
-  </div>
+    <div class="row align-items-center position-relative z-1">
+        <div class="col-md-7">
+            <span class="badge bg-primary-subtle text-primary border border-primary-subtle px-3 py-2 rounded-pill fw-bold text-uppercase tracking-wider small mb-3">
+                🎯 Live Job Stream
+            </span>
+            <h1 class="display-5 fw-extrabold mb-2 tracking-tight">Explore Prime Opportunities</h1>
+            <p class="lead text-white-50 mb-0">Find your next career leap or manage active employment pipeline directories seamlessly.</p>
         </div>
+        
+        {% if request.user.user_type == "Recruiter" %}
+        <div class="col-md-5 text-md-end mt-4 mt-md-0">
+            <a href="{% url 'jobPost' %}" class="btn btn-primary btn-lg fw-bold px-4 py-3 rounded-3 shadow border-0 transition-base hover-lift">
+                <i class="bi bi-plus-circle-fill me-2"></i>Post an Active Job
+            </a>
+        </div>
+        {% endif %}
     </div>
-
-  
 </div>
-{% endfor %}
 
+<!-- Dashboard Grid Layout -->
+<div class="row">
+    <div class="col-12">
+        {% if data %}
+            <div class="row g-4">
+                {% for job in data %}
+                    <div class="col-lg-6">
+                        <div class="card h-100 border-0 shadow-sm rounded-4 position-relative overflow-hidden card-hover-effect" style="background: #ffffff; border: 1px solid rgba(0,0,0,0.03) !important;">
+                            
+                            <!-- Card Body Inner Content -->
+                            <div class="card-body p-4 d-flex flex-column">
+                                
+                                <!-- Top Badging & Meta Layout Row -->
+                                <div class="d-flex align-items-start justify-content-between mb-3">
+                                    <div>
+                                        {% if job.catagory == "Full Time" %}
+                                            <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-bold small mb-2"><i class="bi bi-clock-fill me-1"></i>{{ job.catagory }}</span>
+                                        {% elif job.catagory == "Part Time" %}
+                                            <span class="badge bg-warning-subtle text-warning px-3 py-2 rounded-pill fw-bold small mb-2"><i class="bi bi-pie-chart-fill me-1"></i>{{ job.catagory }}</span>
+                                        {% else %}
+                                            <span class="badge bg-info-subtle text-info px-3 py-2 rounded-pill fw-bold small mb-2"><i class="bi bi-lightning-charge-fill me-1"></i>{{ job.catagory }}</span>
+                                        {% endif %}
+                                        
+                                        <h3 class="fw-bold text-dark mb-2 tracking-tight mt-1" style="font-size: 1.35rem;">{{ job.title }}</h3>
+                                        
+                                        <div class="d-flex flex-wrap gap-3 text-muted small">
+                                            <span class="d-flex align-items-center"><i class="bi bi-building me-1.5 text-primary"></i>{{ job.user.company_name|default:"Confidential Corporate Client" }}</span>
+                                            <span class="d-flex align-items-center"><i class="bi bi-geo-alt me-1.5 text-danger"></i>{{ job.user.address|default:"Remote / Global" }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <hr class="my-3 opacity-25 text-muted">
+                                
+                                <!-- Job Explanatory Description Block -->
+                                <p class="text-secondary small flex-grow-1 lh-relaxed mb-3">
+                                    {{ job.description|truncatewords:32 }}
+                                </p>
+
+                                <!-- Stack Targets Row -->
+                                <div class="mb-4">
+                                    <div class="d-flex flex-wrap gap-1.5">
+                                        {% for skill in job.skills.all %}
+                                            <span class="badge bg-light text-dark border border-light-subtle rounded-3 px-2.5 py-1.5 font-monospace small" style="font-size: 0.75rem;">{{ skill.name }}</span>
+                                        {% empty %}
+                                            <span class="text-muted small italic opacity-75"><i class="bi bi-info-circle me-1"></i>General skill compatibility welcome</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+
+                                <!-- Component Footer Actions Routing Layer -->
+                                <div class="mt-auto pt-3 border-top border-light-subtle">
+                                    {% if request.user.user_type == "JobSeeker" %}
+                                        <a href="{% url 'applyJob' job.id %}" class="btn btn-outline-primary btn-md w-100 fw-bold rounded-3 py-2 transition-base">
+                                            Apply Instantly <i class="bi bi-arrow-right-short ms-1"></i>
+                                        </a>
+                                    {% elif request.user.user_type == "Recruiter" and job.user.user == request.user %}
+                                        <div class="d-flex gap-2 w-100">
+                                            <a href="{% url 'applicant_detail' job.id %}" class="btn btn-primary-subtle text-primary fw-bold btn-md flex-grow-1 rounded-3 py-2 border-0">
+                                                <i class="bi bi-people-fill me-1.5"></i>Applicants
+                                            </a>
+                                            <a href="{% url 'editJob' job.id %}" class="btn btn-outline-secondary btn-md rounded-3 px-3" title="Modify Posting">
+                                                <i class="bi bi-pencil-square">Edit</i>
+                                            </a>
+                                            <a href="{% url 'deleteJob' job.id %}" class="btn btn-outline-danger btn-md rounded-3 px-3" onclick="return confirm('Are you sure you want to permanently delete this posting?');" title="Delete Posting">
+                                                <i class="bi bi-trash3-fill">Delete</i>
+                                            </a>
+                                        </div>
+                                    {% else %}
+                                        <div class="bg-light text-center py-2 rounded-3">
+                                            <small class="text-muted font-monospace small"><i class="bi bi-lock-fill me-1"></i>External Directory File</small>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <!-- Enhanced Empty Dataset Layout Illustration Wrapper -->
+            <div class="text-center py-5 px-4 bg-white rounded-4 shadow-sm border border-light-subtle mt-4">
+                <div class="bg-light rounded-circle d-inline-flex align-items-center justify-content-center mb-3" style="width: 70px; height: 70px;">
+                    <i class="bi bi-search text-muted h3 mb-0"></i>
+                </div>
+                <h3 class="text-dark fw-bold mb-2">No Open Job Records Found</h3>
+                <p class="text-muted mx-auto mb-4" style="max-width: 420px;">We couldn't track down matching listings. Try expanding your parameters or create a new listing framework.</p>
+                {% if request.user.user_type == "Recruiter" %}
+                    <a href="{% url 'jobPost' %}" class="btn btn-primary fw-semibold px-4 py-2 rounded-3">Post First Entry File</a>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Extra Custom CSS Animations Injected Globally via Head Context -->
+<style>
+    .card-hover-effect {
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .card-hover-effect:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 1rem 3rem rgba(31, 45, 61, 0.09) !important;
+    }
+    .hover-lift {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .hover-lift:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+    }
+    .bg-primary-subtle { background-color: rgba(13, 110, 253, 0.12) !important; }
+    .bg-success-subtle { background-color: rgba(25, 135, 84, 0.12) !important; }
+    .bg-warning-subtle { background-color: rgba(255, 193, 7, 0.12) !important; }
+    .bg-info-subtle { background-color: rgba(13, 202, 240, 0.12) !important; }
+    .btn-primary-subtle { background-color: rgba(13, 110, 253, 0.08); }
+    .btn-primary-subtle:hover { background-color: rgba(13, 110, 253, 0.16); }
+    .transition-base { transition: all 0.2s ease-in-out; }
+</style>
 {% endblock content %}

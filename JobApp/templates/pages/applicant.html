@@ -1,52 +1,75 @@
-{% extends 'base/base.html' %}
+{% extends "base/base.html" %}
 
 {% block content %}
-  <div class="table-responsive">
-    <table class="table table-striped table-hover table-borderless table-primary align-middle">
-      <thead class="table-light">
-        <tr>
-          <th scope="col">#</th>
-          <th scope="col">Title</th>
-          <th scope="col">Name</th>
-          <th scope="col">Address</th>
-          <th scope="col">Contact</th>
-          <th scope="col">Resume</th>
-          <th scope="col">Status</th>
-          <th scope="col">Action</th>
-        </tr>
-      </thead>
-      <tbody class="table-group-divider">
-        {% for j in applicants %}
-          <tr class="table-primary">
-            <th scope="row">{{ forloop.counter }}</th>
-            <td>{{ j.job.title }}</td>
-            <td>{{ j.job_seeker.name }}</td>
-            <td>{{ j.job_seeker.address }}</td>
-            <td>{{ j.job_seeker.contact }}</td>
-            <td>
-              {% if j.job_seeker.resume %}
-                <a href="{{ j.job_seeker.resume.url }}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="bi bi-file-earmark-pdf"></i> View Resume</a>
-              {% else %}
-                <span class="text-muted">No Resume</span>
-              {% endif %}
-            </td>
-            <td>{{ j.status }}</td>
-            <td>
-              <div class="dropdown">
-                <button class="btn btn-secondary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton{{ j.id }}" data-bs-toggle="dropdown" aria-expanded="false">Actions</button>
-                <ul class="dropdown-menu" aria-labelledby="dropdownMenuButton{{ j.id }}">
-                  <li>
-                    <a class="dropdown-item text-warning" href="{% url 'shortList' j.id %}"><i class="bi bi-check-circle me-1"></i> Shortlist</a>
-                  </li>
-                  <li>
-                    <a class="dropdown-item text-danger" href="{% url 'reject' j.id %}"><i class="bi bi-x-circle me-1"></i> Reject</a>
-                  </li>
-                </ul>
-              </div>
-            </td>
-          </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
-{% endblock %}
+<div class="my-4">
+    <h2 class="fw-bold mb-1">Incoming Profiles</h2>
+    <p class="text-muted">Review credentials, skill match lists, and direct statuses on job files.</p>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="table-responsive rounded-3">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light text-uppercase font-monospace small">
+                <tr>
+                    <th scope="col" class="ps-4 py-3">Applicant Candidate</th>
+                    <th scope="col" class="py-3">Targeted Opportunity</th>
+                    <th scope="col" class="py-3">Skills Stated</th>
+                    <th scope="col" class="py-3">Documentation</th>
+                    <th scope="col" class="py-3 text-center">Pipeline State Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for app in applicants %}
+                <tr>
+                    <td class="ps-4">
+                        <span class="fw-bold text-dark d-block mb-0">{{ app.job_seeker.name|default:"Anonymous Job Seeker" }}</span>
+                        <small class="text-muted d-block">{{ app.job_seeker.contact }}</small>
+                    </td>
+                    <td>
+                        <span class="fw-semibold text-dark">{{ app.job.title }}</span>
+                    </td>
+                    <td>
+                        <div class="d-flex flex-wrap gap-1" style="max-width: 240px;">
+                            {% for skill in app.job_seeker.skill.all %}
+                                <span class="badge bg-light text-secondary border rounded-1 px-1.5 py-1 small">{{ skill.name }}</span>
+                            {% empty %}
+                                <span class="text-muted small italic">Not declared</span>
+                            {% endfor %}
+                        </div>
+                    </td>
+                    <td>
+                        {% if app.job_seeker.resume %}
+                            <a href="{{ app.job_seeker.resume.url }}" target="_blank" class="btn btn-light btn-sm text-primary fw-medium border-0">
+                                <i class="bi bi-file-earmark-pdf"></i> Open Resume
+                            </a>
+                        {% else %}
+                            <span class="text-muted small">No file attached</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center pe-4">
+                        {% if app.status == "Pending" %}
+                            <div class="d-flex gap-1 justify-content-center">
+                                <a href="{% url 'shortList' app.id %}" class="btn btn-success btn-sm font-monospace px-3 fw-bold">Accept</a>
+                                <a href="{% url 'reject' app.id %}" class="btn btn-outline-danger btn-sm font-monospace px-3 fw-bold">Pass</a>
+                            </div>
+                        {% else %}
+                            {% if app.status == "ShortList" %}
+                                <span class="badge bg-success-subtle text-success border border-success-subtle px-3 py-2 rounded-pill fw-semibold">Shortlisted</span>
+                            {% else %}
+                                <span class="badge bg-danger-subtle text-danger border border-danger-subtle px-3 py-2 rounded-pill fw-semibold">Rejected</span>
+                            {% endif %}
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-5 text-muted">
+                        No active applicant folders match this profile scope currently.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock content %}

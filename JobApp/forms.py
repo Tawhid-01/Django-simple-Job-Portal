@@ -38,6 +38,9 @@ class JobSeekerForm(forms.ModelForm):
         model = JobSeekerModel
         fields = "__all__"
         exclude = ['user']
+        widgets = {
+            'skills': forms.CheckboxSelectMultiple(),
+        }
         
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -62,6 +65,9 @@ class JobForm(forms.ModelForm):
         model = JobModel
         fields = "__all__"
         exclude = ['user']
+        widgets = {
+            'skills': forms.CheckboxSelectMultiple(),
+        }
         
         
     def __init__(self, *args, **kwargs):

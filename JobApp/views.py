@@ -42,14 +42,25 @@ def loginPage(req):
 def logoutPage(req):
     logout(req)
     return redirect('login')
-@login_required
-def dashboardPage(req):
-    data = JobModel.objects.all()
-    context = {
-        'data':data
-    }
 
-    return render(req,'pages/dashboard.html',context)
+
+
+def dashboardPage(req):
+    search = req.GET.get('query')
+    if search:
+        data = JobModel.objects.filter(
+            Q(title__icontains=search) | 
+            Q(description__icontains=search) | 
+            Q(catagory__icontains=search)
+        ).distinct()
+    else:
+        data = JobModel.objects.all()
+        
+    context = {
+        'data': data
+    }
+    return render(req, 'pages/dashboard.html', context)
+
 @login_required
 def recruiterPage(req):
     try:
@@ -73,6 +84,7 @@ def recruiterPage(req):
     }
 
     return render(req,'base/baseForm.html',context)
+
 @login_required
 def jobSeekerPage(req):
     try:
@@ -121,6 +133,7 @@ def jobPostPage(req):
     }
 
     return render(req,'base/baseForm.html',context)
+
 @login_required
 def jobEditPostPage(req,id):
     try:
@@ -146,6 +159,7 @@ def jobEditPostPage(req,id):
     }
 
     return render(req,'base/baseForm.html',context)
+
 @login_required
 def jobDeletePostPage(req,id):
     if req.user.user_type == 'Recruiter':
@@ -200,15 +214,19 @@ def myApplyPage(req):
 
 @login_required
 def applicantPage(req, id=None): 
-    id = JobModel.objects.filter(id=id)
-
     if id:
-        applicants = ApplyJobModel.objects.filter(job=id)
+        job_instance = JobModel.objects.filter(id=id).first()
+        applicants = ApplyJobModel.objects.filter(job=job_instance)
     else:
-       
-        applicants = ApplyJobModel.objects.all()
+     
+        try:
+            recruiter = RecruiterModel.objects.get(user=req.user)
+            applicants = ApplyJobModel.objects.filter(job__user=recruiter)
+        except RecruiterModel.DoesNotExist:
+            applicants = ApplyJobModel.objects.none()
         
     return render(req, 'pages/applicant.html', {'applicants': applicants})
+
 @login_required
 def shortListPage(req,id):
     apply_job = ApplyJobModel.objects.get(id=id)
@@ -216,6 +234,7 @@ def shortListPage(req,id):
     apply_job.save()
     messages.success(req,'ShortListed Successfully')
     return redirect('applicant')
+
 @login_required
 def rejectPage(req,id):
     apply_job = ApplyJobModel.objects.get(id=id)
